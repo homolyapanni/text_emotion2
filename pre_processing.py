@@ -28,7 +28,7 @@ def pre_processing(dataset):
         stopwords.remove('nor')
         stopwords.remove('no')
         
-        word_tokens = word_tokenize(texts)
+        word_tokens =nltk.word_tokenize(texts)
     
         sentence = [w for w in word_tokens if not w in stopwords] 
         string=" "
