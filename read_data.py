@@ -1,4 +1,5 @@
 import csv
+import os
 
 def read_data(path):
     data = []
