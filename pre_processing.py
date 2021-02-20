@@ -1,6 +1,8 @@
 import preprocessor as p
 import re
 import nltk
+nltk.download('stopwords')
+nltk.download('averaged_perceptron_tagger')
 
 def pre_processing(dataset):
     data=[]
@@ -33,6 +35,5 @@ def pre_processing(dataset):
         sentence = [w for w in word_tokens if not w in stopwords] 
         string=" "
         text=string.join(sentence)
-        data.append((text,label)) 
-        
+        data.append((text,label))   
     return data
