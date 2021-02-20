@@ -2,12 +2,9 @@ import numpy as np
 import scipy
 
 import nltk
+nltk.download('punkt')
 from nltk.tokenize import word_tokenize
 from nltk.util import ngrams
-nltk.download('punkt')
-
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 from tqdm import tqdm
 
@@ -17,65 +14,69 @@ class Featurizer():
         for word in word_tokenize(text):
             yield word
     
-    @staticmethod
-    def count_vectorizer(text):
-        count_v = CountVectorizer() 
-        count_v.fit(texts) 
-        yield count_v.transform(texts)
-    
-    @staticmethod
-    def tfidf_vectorizer(text):
-        tfidf_v = CountVectorizer() 
-        tfidf_v.fit(texts) 
-        yield tfidf_v.transform(texts)
-        
+       
     @staticmethod
     def number_of_words(text):
-        for num,sentence in enumerate(text):
-            s=nltk.word_tokenize(sentence)
-            count=len(s)
-            l=[(num,count)]
-            yield l
+       t=text.split()
+       l=len(t)
+       yield l
             
     @staticmethod
-    def POS_t(text):
-        for sentence in text:
-           tokens = nltk.word_tokenize(sentence)            
-            txt=nltk.Text(tokens)                      
-            tags = nltk.pos_tag(txt)  
-            yield tags
-            
+    def POS_tag_noun(text):
+        for word in word_tokenize(text):                              
+            tags = nltk.pos_tag(word)
+            noun = sum(1 for w, tag in tags if tag == 'NN' or tag == 'NNS' or tag == 'NNP' or tag == 'NNP')
+            yield ('NOUN', noun)
+
+    def POS_tag_verb(text):
+        for word in word_tokenize(text):                              
+            tags = nltk.pos_tag(word)
+            verb = sum(1 for w, tag in tags if tag == 'VB' or tag == 'VBD' or tag == 'VBG' or tag == 'VBN')
+            yield ('VERB',verb)
+
+    def POS_tag_adj(text):
+        for word in word_tokenize(text):                              
+            tags = nltk.pos_tag(word)
+            adj = sum(1 for w, tag in tags if tag == 'JJ' or tag == 'JJR' or tag == 'JJS')
+            yield ('ADJ',adj)
+
+    def POS_tag_adv(text):
+      for word in word_tokenize(text):                              
+          tags = nltk.pos_tag(word)
+          adv = sum(1 for w, tag in tags if tag == 'RB' or tag == 'RBR' or tag == 'RBS')
+          yield ('ADV',adv)
+
     @staticmethod      
     def bigrams(text):
-        for i in text:
-            token=nltk.word_tokenize(i)
-            bigrams=ngrams(token,2)
+        for word in word_tokenize(text):
+            bigrams=ngrams(word,2)
             yield bigrams
             
     @staticmethod      
     def trigrams(text):
-        for i in text:
-            token=nltk.word_tokenize(i)
-            trigrams=ngrams(token,3)
+        for word in word_tokenize(text):
+            trigrams=ngrams(word,3)
             yield trigrams
 
-    feature_functions = [
-        'bag_of_words']
+    #feature_functions = [
+      #  'bag_of_words','number_of_words','POS_tag_noun','POS_tag_verb','POS_tag_adj','POS_tag_adv','bigrams','trigrams']
+    feature_functions = ['number_of_words','POS_tag_noun','POS_tag_verb','POS_tag_adj','POS_tag_adv','bigrams','trigrams']
 
     def __init__(self):
         self.labels = {}
         self.labels_by_id = {}
         self.features = {}
-        self.features_by_id = {}
         self.next_feature_id = 0
         self.next_label_id = 0
 
-    def to_sparse(self, events):
+    def to_sparse(self, events,values):
         """convert sets of ints to a scipy.sparse.csr_matrix"""
         data, row_ind, col_ind = [], [], []
+        n = 0
         for event_index, event in enumerate(events):
             for feature in event:
-                data.append(1)
+                data.append(values[n])
+                n += 1
                 row_ind.append(event_index)
                 col_ind.append(feature)
                 
@@ -87,8 +88,7 @@ class Featurizer():
         return matrix
 
     def featurize(self, dataset, allow_new_features=False):
-        events, labels, already_sparse_m, = [], [], []
-        n_events = len(dataset)
+        events, values, labels = [], [], []
         for c, (text, label) in tqdm(enumerate(dataset)):
             if label not in self.labels:
                 self.labels[label] = self.next_label_id
@@ -99,35 +99,42 @@ class Featurizer():
             
             for function_name in Featurizer.feature_functions:
                 function = getattr(Featurizer, function_name)
-                if type(function(text)) == scipy.sparse.csr.csr_matrix:
-                    already_sparse_m.append(function(text))
-                    continue
-                    
-                if  type(function(text)[0]) == tuple:
-                    for (num,count) in function(text):
-                        if num not in self.features:
-                            self.features[num] = count
-                        feat_id = self.features[num]
+                
+                if  function_name == 'number_of_words' :
+                    for length in function(text):
+                        f= 'A'+str(c)
+                        if f not in self.features:
+                          if not allow_new_features:
+                                continue
+                          self.features[f] = self.next_feature_id
+                          self.next_feature_id += 1
+                        feat_id = self.features[f]
                         events[-1].add(feat_id)
-           
-                for feature in function(text):
-                    if feature not in self.features:
-                        if not allow_new_features:
-                            continue
-                        self.features[feature] = self.next_feature_id
-                        self.features_by_id[self.next_feature_id] = feature
-                        self.next_feature_id += 1
-                    feat_id = self.features[feature]
-                    events[-1].add(feat_id)
+                        values.append(length)
+
+                if  function_name == 'POS_t' :
+                    for (POS,s) in function(text):
+                        if POS not in self.features:
+                          if not allow_new_features:
+                                continue
+                          self.features[POS] = self.next_feature_id
+                          self.next_feature_id += 1
+                        feat_id = self.features[POS]
+                        events[-1].add(feat_id)
+                        values.append(s)
+
+                else:
+                    for feature in function(text):
+                        if feature not in self.features:
+                            if not allow_new_features:
+                                continue
+                            self.features[feature] = self.next_feature_id
+                            self.next_feature_id += 1
+                        feat_id = self.features[feature]
+                        events[-1].add(feat_id)
+                        values.append(1)
         
-        events_sparse = self.to_sparse(events)
+        events_sparse = self.to_sparse(events,values)
         labels_array = np.array(labels)
-        
-        if len(already_sparse_m) == 0:
-            return events_sparse, labels_array
-        
-        else:
-            for i in already_sparse_m:
-                new_events=scipy.sparse.hstack((i,events_sparse))
-                events_sparse=new_events
-            return events_sparse, labels_array
+
+        return events_sparse, labels_array
