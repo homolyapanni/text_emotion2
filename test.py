@@ -15,28 +15,22 @@ def test(path):
     print("Featurizer train data")
     train_features, train_labels = featurizer.featurize(train_data, allow_new_features=True)
    
-    print("Featurizer validation data
+    print("Featurizer validation data")
     val_features, val_labels = featurizer.featurize(val_data, allow_new_features=False)
     
-    val_l = []
-    vl=[]
-    i=0
-    for label in val_labels:
-        f=featurizer.labels_by_id[label]
-        if f not in vl:
-            vl.append(f)
-            val_l.append((i,f))
-            i+=1
-            
-    print("Labels")
-    print(val_l)
-      
-    print("Logistic regression")
+    print("Logistic Regression")
     model = LogisticRegression()
-          
-    print("Model fit")
+
+    print("Fitting")
     model.fit(train_features, train_labels)
 
     print("Prediction")
     predictions = model.predict(val_features)
-    print(classification_report(val_labels, predictions))
+
+    targets = []
+    for label in train_labels:
+        f=featurizer.labels_by_id[label]
+        if f not in targets:
+            targets.append(f)
+
+    print(classification_report(val_labels, predictions, target_names=targets))
