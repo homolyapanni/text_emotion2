@@ -34,3 +34,18 @@ def test(path):
             targets.append(f)
 
     print(classification_report(val_labels, predictions, target_names=targets))
+    
+    print("The most important features")
+
+    importance = model.coef_
+
+    common=[]
+    v_list=[]
+    for record in importance:
+      for c,value in enumerate(record):
+        v_list.append((c,value))
+      v_list.sort(key=lambda tup:tup[1], reverse = True)
+      common.append(v_list[:5])
+      v_list=[]
+
+    print(common)
