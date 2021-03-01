@@ -27,19 +27,22 @@ class Featurizer():
             tags = nltk.pos_tag(word)
             noun = sum(1 for w, tag in tags if tag == 'NN' or tag == 'NNS' or tag == 'NNP' or tag == 'NNP')
             yield ('NOUN', noun)
-
+    
+    @staticmethod
     def POS_tag_verb(text):
         for word in word_tokenize(text):                              
             tags = nltk.pos_tag(word)
             verb = sum(1 for w, tag in tags if tag == 'VB' or tag == 'VBD' or tag == 'VBG' or tag == 'VBN')
             yield ('VERB',verb)
-
+    
+    @staticmethod
     def POS_tag_adj(text):
         for word in word_tokenize(text):                              
             tags = nltk.pos_tag(word)
             adj = sum(1 for w, tag in tags if tag == 'JJ' or tag == 'JJR' or tag == 'JJS')
             yield ('ADJ',adj)
-
+    
+    @staticmethod
     def POS_tag_adv(text):
       for word in word_tokenize(text):                              
           tags = nltk.pos_tag(word)
