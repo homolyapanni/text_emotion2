@@ -115,7 +115,7 @@ class Featurizer():
                         events[-1].add(feat_id)
                         values.append(length)
 
-                if  function_name == 'POS_t' :
+                if  function_name in ['POS_tag_noun','POS_tag_verb','POS_tag_adj','POS_tag_adv']:
                     for (POS,s) in function(text):
                         if POS not in self.features:
                           if not allow_new_features:
