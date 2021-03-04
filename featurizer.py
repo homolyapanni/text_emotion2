@@ -9,57 +9,51 @@ from nltk.util import ngrams
 from tqdm import tqdm
 
 class Featurizer():
+    
     @staticmethod
     def bag_of_words(text):
         for word in word_tokenize(text):
             yield word
-    
-       
+            
     @staticmethod
     def number_of_words(text):
-       t=text.split()
-       l=len(t)
-       yield l
+        t=text.split()
+        l=len(t)
+        yield l
             
     @staticmethod
     def POS_tag_noun(text):
-        for word in word_tokenize(text):                              
-            tags = nltk.pos_tag(word)
-            noun = sum(1 for w, tag in tags if tag == 'NN' or tag == 'NNS' or tag == 'NNP' or tag == 'NNP')
-            yield ('NOUN', noun)
-    
-    @staticmethod
+        tags = nltk.pos_tag(word_tokenize(text))
+        noun = sum(1 for w, tag in tags if tag == 'NN' or tag == 'NNS' or tag == 'NNP' or tag == 'NNP')
+        yield ('NOUN', noun)
+            
+    @staticmethod    
     def POS_tag_verb(text):
-        for word in word_tokenize(text):                              
-            tags = nltk.pos_tag(word)
-            verb = sum(1 for w, tag in tags if tag == 'VB' or tag == 'VBD' or tag == 'VBG' or tag == 'VBN')
-            yield ('VERB',verb)
-    
+        tags = nltk.pos_tag(word_tokenize(text))
+        verb = sum(1 for w, tag in tags if tag == 'VB' or tag == 'VBD' or tag == 'VBG' or tag == 'VBN')
+        yield ('VERB',verb)
+            
     @staticmethod
     def POS_tag_adj(text):
-        for word in word_tokenize(text):                              
-            tags = nltk.pos_tag(word)
-            adj = sum(1 for w, tag in tags if tag == 'JJ' or tag == 'JJR' or tag == 'JJS')
-            yield ('ADJ',adj)
-    
+        tags = nltk.pos_tag(word_tokenize(text))
+        adj = sum(1 for w, tag in tags if tag == 'JJ' or tag == 'JJR' or tag == 'JJS')
+        yield ('ADJ',adj)
+            
     @staticmethod
     def POS_tag_adv(text):
-      for word in word_tokenize(text):                              
-          tags = nltk.pos_tag(word)
-          adv = sum(1 for w, tag in tags if tag == 'RB' or tag == 'RBR' or tag == 'RBS')
-          yield ('ADV',adv)
+        tags = nltk.pos_tagword_tokenize(text))
+        adv = sum(1 for w, tag in tags if tag == 'RB' or tag == 'RBR' or tag == 'RBS')
+        yield ('ADV',adv)
 
     @staticmethod      
     def bigrams(text):
-        for word in word_tokenize(text):
-            bigrams=ngrams(word,2)
-            yield bigrams
+        bigrams=ngrams(word_tokenize(text),2)
+        yield bigrams
             
     @staticmethod      
     def trigrams(text):
-        for word in word_tokenize(text):
-            trigrams=ngrams(word,3)
-            yield trigrams
+        trigrams=ngrams(word_tokenize(text),3)
+        yield trigrams
 
     #feature_functions = [
       #  'bag_of_words','number_of_words','POS_tag_noun','POS_tag_verb','POS_tag_adj','POS_tag_adv','bigrams','trigrams']
