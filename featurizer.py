@@ -41,7 +41,7 @@ class Featurizer():
             
     @staticmethod
     def POS_tag_adv(text):
-        tags = nltk.pos_tagword_tokenize(text))
+        tags = nltk.pos_tag(word_tokenize(text))
         adv = sum(1 for w, tag in tags if tag == 'RB' or tag == 'RBR' or tag == 'RBS')
         yield ('ADV',adv)
 
