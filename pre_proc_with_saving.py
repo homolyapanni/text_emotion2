@@ -39,7 +39,7 @@ def pre_processing(dataset,N):
         text=string.join(sentence)
         data.append((text,label)) 
         
-    with open('pre_proc_'+str(N)+'.csv', 'w') as csv_file:
+    with open('pre_proc_'+str(N)+'.csv', 'w',encoding='utf-8') as csv_file:
         csv_writer = csv.writer(csv_file)
         for item in data:
             csv_writer.writerow((item[0],item[1]))
