@@ -1,3 +1,7 @@
+from sklearn.metrics import classification_report
+from sklearn.linear_model import LogisticRegression
+import joblib
+
 def test(path,N):
     print("Read data")
     dataset = read_data_N_rows(path,N)
